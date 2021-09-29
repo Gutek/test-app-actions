@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build-and-deploy:
     runs-on: ubuntu-latest
+    environment: dev
     steps:
     # checkout the repo
     - name: 'Checkout GitHub Action' 
