@@ -31,10 +31,6 @@ jobs:
       - name: Pack
         run: dotnet pack ./src/Modulos/Modulos.csproj --output nuget-packages --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg
 
-      - name: Add NuGet sources
-        run: |
-          dotnet nuget add source https://nuget.pkg.github.com/${{ env.GITHUB_REPOSITORY_OWNER }}/index.json --name github
-
       - name: NuGet push on GitHub
         run: dotnet nuget push "**/*.nupkg" --source github --api-key ${{ env.GITHUB_API_KEY }} --skip-duplicate
 
