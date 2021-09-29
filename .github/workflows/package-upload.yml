@@ -20,7 +20,7 @@ jobs:
       - uses: actions/setup-dotnet@v1
         with:
           dotnet-version: ${{ matrix.dotnet-version }} # SDK Version to use.
-          source-url: https://nuget.pkg.github.com/guek/index.json
+          source-url: https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: dotnet build --configuration Release ./src/Modulos/Modulos.csproj
@@ -28,3 +28,5 @@ jobs:
         run: dotnet pack --configuration Release ./src/Modulos/Modulos.csproj
       - name: Publish the package to GPR
         run: dotnet nuget push ./src/Modulos/bin/Release/*.nupkg
+        env:
+          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
