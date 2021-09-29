@@ -6,6 +6,10 @@ on:
   release:
     types: [created]
 
+env:
+  GITHUB_REPOSITORY_OWNER: ${{ github.repository_owner }} 
+  GITHUB_API_KEY: ${{ github.token }}            
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -24,9 +28,18 @@ jobs:
         env:
           NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
       - run: dotnet build --configuration Release ./src/Modulos/Modulos.csproj
-      - name: Create the package
-        run: dotnet pack --configuration Release ./src/Modulos/Modulos.csproj
-      - name: Publish the package to GPR
-        run: dotnet nuget push ./src/Modulos/bin/Release/*.nupkg
-        env:
-          NUGET_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+      - name: Pack
+        run: dotnet pack ./src/Modulos/Modulos.csproj --output nuget-packages --configuration Release --include-symbols -p:SymbolPackageFormat=snupkg
+
+      - name: Add NuGet sources
+        run: |
+          dotnet nuget add source https://nuget.pkg.github.com/${{ env.GITHUB_REPOSITORY_OWNER }}/index.json --name github
+
+      - name: NuGet push on GitHub
+        run: dotnet nuget push "**/*.nupkg" --source github --api-key ${{ env.GITHUB_API_KEY }} --skip-duplicate
+
+      - name: Upload NuGet package
+        uses: actions/upload-artifact@v2.2.1
+        with:
+          name: ${{ env.APP_NAME }}
+          path: "**/*.nupkg"
